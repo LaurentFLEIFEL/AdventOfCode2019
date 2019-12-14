@@ -19,15 +19,15 @@ import java.util.Map;
 @SpringBootApplication
 @Slf4j
 public class AdventApplication implements CommandLineRunner {
-    public static final String input = "day13-1.txt";
-    public static final String service = "carePackage";
+    public static final String input = "day14-1.txt";
+    public static final String service = "fuelProcessing";
 
     private Map<String, LinesConsumer> serviceByName;
 
     public AdventApplication(ApplicationContext context) {
         serviceByName = context.getBeansOfType(LinesConsumer.class);
 
-        if(!serviceByName.containsKey(service)) {
+        if (!serviceByName.containsKey(service)) {
             log.warn("Service {} is not recognised. The set of recognised service is {}", service, serviceByName.keySet());
         }
     }
