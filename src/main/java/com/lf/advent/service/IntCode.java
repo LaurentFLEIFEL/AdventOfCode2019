@@ -166,7 +166,7 @@ public class IntCode implements LinesConsumer {
 
         public long readInput() {
             Long aLong = io.input.pollFirst();
-            log.info("read input = {}", aLong);
+//            log.info("read input = {}", aLong);
             return aLong;
         }
 
