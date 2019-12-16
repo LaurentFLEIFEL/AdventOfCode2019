@@ -134,11 +134,11 @@ public class CarePackage implements LinesConsumer {
             return;
         }
 
-//        try {
-//            Thread.sleep(10);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         for (int y = ys.getMax(); y > ys.getMin() - 1; y--) {
             for (int x = xs.getMin(); x < xs.getMax(); x++) {
                 Point point = Point.of(x, y);
