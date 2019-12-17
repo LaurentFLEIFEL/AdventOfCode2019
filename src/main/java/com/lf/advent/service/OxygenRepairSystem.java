@@ -1,6 +1,10 @@
 package com.lf.advent.service;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.eclipse.collections.api.factory.Lists;
@@ -11,7 +15,16 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -161,19 +174,6 @@ public class OxygenRepairSystem implements LinesConsumer {
                                      .mapToInt(point -> point.y)
                                      .summaryStatistics();
 
-//        int width = xs.getMax() - xs.getMin() + 1;
-//        int height = ys.getMax() - ys.getMin() + 1;
-//        log.info("Width = {}, Height = {}", width, height);
-
-//        if (width != 44 || height != 20) {
-//            return;
-//        }
-
-//        try {
-//            Thread.sleep(10);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         for (int y = ys.getMax() ; y > ys.getMin() - 1 ; y--) {
             for (int x = xs.getMin() ; x < xs.getMax() + 1 ; x++) {
                 Point point = Point.of(x, y);
