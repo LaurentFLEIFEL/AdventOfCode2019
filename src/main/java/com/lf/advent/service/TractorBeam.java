@@ -14,10 +14,10 @@ import java.util.Map;
 @Slf4j
 public class TractorBeam implements LinesConsumer {
 
-    public static final int X_MAX = 1050;
-    public static final int Y_MAX = 1200;
-    public static final int X_MIN = 650;
-    public static final int Y_MIN = 1000;
+    public static final int X_MAX = 1700;
+    public static final int Y_MAX = 1600;
+    public static final int X_MIN = 1300;
+    public static final int Y_MIN = 1200;
     public static final int SHIP_WIDTH = 100;
     public static final int SHIP_HEIGHT = 100;
     private Map<Point, DroneEffect> maps = Maps.mutable.withInitialCapacity((X_MAX - X_MIN) * (Y_MAX - Y_MIN));
@@ -26,7 +26,7 @@ public class TractorBeam implements LinesConsumer {
     public void consume(List<String> lines) {
         initialize(lines);
 
-//        display();
+        display();
 
         part1();
 

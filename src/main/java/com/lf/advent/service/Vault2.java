@@ -8,8 +8,10 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.springframework.stereotype.Service;
@@ -38,8 +40,8 @@ public class Vault2 implements LinesConsumer {
     @Getter
     private MutableSet<Tile> starts = Sets.mutable.withInitialCapacity(4);
     private MutableSet<Tile> nodes;
-    private int bestDistance;
-    private Map<PathToKeysKeyMap, Integer> memoizedValues = Maps.mutable.withInitialCapacity(10_000);
+    private Result bestDistance;
+    private Map<PathToKeysKeyMap, Result> memoizedValues = Maps.mutable.withInitialCapacity(10_000);
 
     @Override
     public void consume(List<String> lines) {
@@ -48,12 +50,18 @@ public class Vault2 implements LinesConsumer {
         computeDistances();
 
         bestDistance = findBestDistance2(starts, Sets.mutable.empty());
+        addMissingNode();
         log.info("Best distance = {}", bestDistance);
     }
 
-    private int findBestDistance2(MutableSet<Tile> currents, MutableSet<Tile> availableKeys) {
+    private void addMissingNode() {
+        nodes.difference(bestDistance.getPath().toSet())
+             .forEach(tile -> bestDistance.getPath().add(tile));//only the last one is missing
+    }
+
+    private Result findBestDistance2(MutableSet<Tile> currents, MutableSet<Tile> availableKeys) {
         if (availableKeys.containsAll(allKeys)) {
-            return 0;
+            return Result.builder().length(0).path(Lists.mutable.of()).build();
         }
 
         PathToKeysKeyMap key = PathToKeysKeyMap.builder()
@@ -65,16 +73,16 @@ public class Vault2 implements LinesConsumer {
         }
 
 
-        int result = reachableKeys2(currents, availableKeys).stream()
-                                                            .mapToInt(pair -> evaluateDistance(currents, availableKeys, pair))
-                                                            .min()
-                                                            .orElse(Integer.MAX_VALUE);
+        Result result = reachableKeys2(currents, availableKeys).stream()
+                                                               .map(pair -> evaluateDistance(currents, availableKeys, pair))
+                                                               .min(comparingInt(Result::getLength))
+                                                               .orElse(Result.builder().length(Integer.MAX_VALUE).path(Lists.mutable.empty()).build());
 
         memoizedValues.put(key, result);
         return result;
     }
 
-    private int evaluateDistance(MutableSet<Tile> currents, MutableSet<Tile> availableKeys, Pair<Tile, Tile> pair) {
+    private Result evaluateDistance(MutableSet<Tile> currents, MutableSet<Tile> availableKeys, Pair<Tile, Tile> pair) {
         MutableSet<Tile> newAvailableKeys = availableKeys.toImmutable()
                                                          .newWith(pair.getTwo())
                                                          .toSet();
@@ -82,7 +90,9 @@ public class Vault2 implements LinesConsumer {
                                                .reject(tile -> tile.equals(pair.getOne()))
                                                .newWith(pair.getTwo())
                                                .toSet();
-        return distances.get(pair(pair.getTwo(), pair.getOne())).getLength() + findBestDistance2(newCurrents, newAvailableKeys);
+        Result partialResult = findBestDistance2(newCurrents, newAvailableKeys);
+        int length = distances.get(pair(pair.getTwo(), pair.getOne())).getLength() + partialResult.getLength();
+        return Result.builder().path(Lists.mutable.of(pair.getOne()).withAll(partialResult.getPath())).length(length).build();
     }
 
     private Set<Pair<Tile, Tile>> reachableKeys2(Set<Tile> currents, MutableSet<Tile> availableKeys) {
@@ -113,6 +123,10 @@ public class Vault2 implements LinesConsumer {
                                    .forEach(this::computeDistance));
     }
 
+    public int pathSize() {
+        return bestDistance.getLength();
+    }
+
     private void computeDistance(Pair<Tile, Tile> pair) {
         if (distances.containsKey(pair)) {
             return;
@@ -128,8 +142,16 @@ public class Vault2 implements LinesConsumer {
         distances.put(pair.swap(), copy);
     }
 
-    public int pathSize() {
-        return bestDistance;
+    @Builder
+    @Getter
+    public static class Result {
+        private MutableList<Tile> path;
+        private int length;
+
+        @Override
+        public String toString() {
+            return "Result{" + length + path + '}';
+        }
     }
 
     public PathInfo path(Point start, Point target) {
@@ -250,7 +272,6 @@ public class Vault2 implements LinesConsumer {
 
     @Getter
     @EqualsAndHashCode
-    @ToString
     public static class Tile {
         private Point position;
         private TileType type;
@@ -263,6 +284,11 @@ public class Vault2 implements LinesConsumer {
             tile.type = type;
             tile.code = code;
             return tile;
+        }
+
+        @Override
+        public String toString() {
+            return "'" + code + "(" + position.x + ", " + position.y + ")'";
         }
 
         public boolean isKey() {
