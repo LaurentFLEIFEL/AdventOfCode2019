@@ -102,7 +102,7 @@ public class IntCode implements LinesConsumer {
         ADJUST_RELATIVE_BASE(9,
                              parameters -> parameters.address + 2,
                              parameters -> {
-                                parameters.setRelativeBase((int)(parameters.relativeBase + parameters.firstParameter()));
+                                 parameters.setRelativeBase((int) (parameters.relativeBase + parameters.firstParameter()));
                              }
         ),
         FINISH(99,
@@ -204,7 +204,7 @@ public class IntCode implements LinesConsumer {
 //            log.info("Mode {} ({})", of, code);
             long address1 = of.computeAddress(this, index);
 //            log.info("Computed address = {}", address1);
-            return (int)address1;
+            return (int) address1;
         }
     }
 

@@ -1,9 +1,7 @@
 package com.lf.advent.service;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.lf.advent.util.Point;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
@@ -185,30 +183,4 @@ public class HullPainter implements LinesConsumer {
                          .orElseThrow(() -> new IllegalArgumentException("Color " + code + " is not recognised."));
         }
     }
-
-    @Builder
-    @ToString
-    @EqualsAndHashCode
-    public static class Point {
-        public static final Point ZERO = Point.of(0, 0);
-
-        private int x;
-        private int y;
-
-        public static Point of(int x, int y) {
-            return Point.builder()
-                        .x(x)
-                        .y(y)
-                        .build();
-        }
-
-        public int distance(Point other) {
-            return Math.abs(x - other.x) + Math.abs(y - other.y);
-        }
-
-        public int module() {
-            return distance(ZERO);
-        }
-    }
-
 }

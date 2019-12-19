@@ -1,11 +1,8 @@
 package com.lf.advent.service;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.lf.advent.util.Point;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.complex.Complex;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.springframework.stereotype.Service;
@@ -85,13 +82,13 @@ public class MonitoringStation implements LinesConsumer {
                                                                                .filter(point -> !point.equals(maxViewer))
                                                                                .collect(Collectors.groupingBy(point -> point.argument(maxViewer),
                                                                                                               TreeMap::new,
-                                                                                                              Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingDouble(point -> point.distance(maxViewer))))));
+                                                                                                              Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingDouble(point -> point.distance2(maxViewer))))));
 
 //        asteroidsByOrigin.forEach((argument, points) -> System.out.println("arguments = " + argument + " points = " + points));
 
         Set<Point> destroyedPoints = Sets.mutable.empty();
         double previousArgument = -1d;
-        while (destroyedPoints.size() < asteroids.size()-1) {
+        while (destroyedPoints.size() < asteroids.size() - 1) {
             Map.Entry<Double, NavigableSet<Point>> entry = asteroidsByOrigin.higherEntry(previousArgument);
             if (entry == null) {
                 previousArgument = -1d;
@@ -108,69 +105,6 @@ public class MonitoringStation implements LinesConsumer {
 
             log.info("{} th to be vaporized at {}", destroyedPoints.size() + 1, first.get());
             destroyedPoints.add(first.get());
-        }
-
-    }
-
-    @Builder
-    @ToString
-    @EqualsAndHashCode
-    public static class Point {
-        public static final Point ZERO = Point.of(0, 0);
-
-        private int x;
-        private int y;
-
-        public static Point of(int x, int y) {
-            return Point.builder()
-                        .x(x)
-                        .y(y)
-                        .build();
-        }
-
-        public double distance(Point other) {
-            return Math.sqrt(Math.pow(x - other.x, 2d) + Math.pow(y - other.y, 2d));
-        }
-
-        public double module() {
-            return distance(ZERO);
-        }
-
-        public double argument(Point origin) {
-            Point t = this.translate(origin);
-            if (t.x == 0 && t.y < 0) {
-                return 0d;
-            }
-            Complex complex = new Complex(t.x, -t.y);
-            double argument = complex.getArgument() - Math.PI / 2d;
-            if (argument < 0) {
-                argument += 2d * Math.PI;
-            }
-            return 2d * Math.PI - argument;
-        }
-
-        public Point translate(Point origin) {
-            return Point.of(this.x - origin.x, this.y - origin.y);
-        }
-
-        public long findVisible(Set<Point> asteroids) {
-            return asteroids.stream()
-                            .filter(point -> !this.equals(point))
-                            .filter(point1 -> canSee(point1, asteroids))
-                            .count();
-        }
-
-        public boolean canSee(Point point, Set<Point> asteroids) {
-            if (point.x < this.x) {
-                return point.canSee(this, asteroids);
-            }
-
-            double gDistance = this.distance(point);
-            return asteroids.stream()
-                            .filter(point1 -> !point.equals(point1))
-                            .filter(point1 -> !this.equals(point1))
-                            .noneMatch(point1 -> (point1.distance(this) + point1.distance(point) - gDistance) <= 1e-10);
-
         }
     }
 }

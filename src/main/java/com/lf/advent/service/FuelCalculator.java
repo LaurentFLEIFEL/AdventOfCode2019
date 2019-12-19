@@ -1,7 +1,6 @@
 package com.lf.advent.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.springframework.stereotype.Service;

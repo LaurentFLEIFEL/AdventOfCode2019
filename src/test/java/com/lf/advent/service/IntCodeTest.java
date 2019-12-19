@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class IntCodeTest {
@@ -444,8 +443,8 @@ public class IntCodeTest {
     @Test
     public void test9_1() {
         //Given
-        long[] input = {109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99};
-        long[] expected = {109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99};
+        long[] input = {109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99};
+        long[] expected = {109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99};
         service.setMemory(input);
 
         //When
@@ -458,7 +457,7 @@ public class IntCodeTest {
     @Test
     public void test9_2() {
         //Given
-        long[] input = {1102,34915192L,34915192L,7,4,7,99,0};
+        long[] input = {1102, 34915192L, 34915192L, 7, 4, 7, 99, 0};
         long[] expected = {1125899906842624L};
         service.setMemory(input);
 
@@ -473,7 +472,7 @@ public class IntCodeTest {
     @Test
     public void test9_3() {
         //Given
-        long[] input = {104,1125899906842624L,99};
+        long[] input = {104, 1125899906842624L, 99};
         long[] expected = {1125899906842624L};
         service.setMemory(input);
 

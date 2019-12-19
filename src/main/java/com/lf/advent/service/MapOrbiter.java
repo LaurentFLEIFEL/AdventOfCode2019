@@ -46,7 +46,7 @@ public class MapOrbiter implements LinesConsumer {
                       .sum();
         log.info("Count = {}", count);
 
-        if(!(astreByName.containsKey("YOU") && astreByName.containsKey("SAN"))) {
+        if (!(astreByName.containsKey("YOU") && astreByName.containsKey("SAN"))) {
             return;
         }
 

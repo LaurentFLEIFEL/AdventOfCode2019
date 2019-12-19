@@ -5,8 +5,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.FixedSizeList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class MapOrbiterTest {
 
     private MapOrbiter mapOrbiter = new MapOrbiter();

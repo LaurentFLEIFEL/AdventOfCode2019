@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.exception.MathArithmeticException;
 import org.apache.commons.math3.util.ArithmeticUtils;
 import org.eclipse.collections.api.factory.Maps;
 import org.springframework.stereotype.Service;
@@ -101,10 +100,15 @@ public class FFT implements LinesConsumer {
         return sum(input, index, indexInfo);
     }
 
+    public static int computeFactor(int replicationFactor, int index) {
+        int computedIndex = ((index + 1) / (replicationFactor + 1)) % 4;
+        return initialPattern[computedIndex];
+    }
+
     private int sum(int[] input, int replicator, IndexInfo indexInfo) {
         int sum = 0;
         int remainingSum = 0;
-        for (int index = replicator; index < Math.min(indexInfo.getLcm(), input.length) ; index++) {
+        for (int index = replicator; index < Math.min(indexInfo.getLcm(), input.length); index++) {
             if (index == indexInfo.getRemaining()) {
                 remainingSum = sum;
                 if (indexInfo.getFactor() == 0) {
@@ -121,30 +125,6 @@ public class FFT implements LinesConsumer {
         return sum * indexInfo.getFactor() + remainingSum;
     }
 
-    @Getter
-    @ToString
-    public static class IndexInfo {
-        private int index;
-        private int lcm;
-        private int factor;
-
-        private int remaining;
-        public static IndexInfo of(int initialLength, int index, int inputLength) {
-            IndexInfo indexInfo = new IndexInfo();
-            indexInfo.index = index;
-            if (4 * (index + 1) >= inputLength) {
-                indexInfo.lcm = inputLength;
-            } else {
-                indexInfo.lcm = ArithmeticUtils.lcm(initialLength, 4 * (index + 1));
-            }
-            indexInfo.factor = inputLength/indexInfo.lcm;
-            indexInfo.remaining = inputLength % indexInfo.lcm;
-
-            return indexInfo;
-        }
-
-    }
-
     private static int[] duplicate(int[] input, int nbrOfRepeat) {
         int newLength = input.length * nbrOfRepeat;
         int[] result = Arrays.copyOf(input, newLength);
@@ -157,18 +137,13 @@ public class FFT implements LinesConsumer {
 
     private static final int[] initialPattern = {0, 1, 0, -1};
 
-    public static int computeFactor(int replicationFactor, int index) {
-        int computedIndex = ((index + 1) / (replicationFactor+1)) % 4;
-        return initialPattern[computedIndex];
-    }
-
     public int multiplyWithNext(int element, int replicationFactor, int index) {
         int next = computeFactor(replicationFactor, index);
         if (next == 0) {
             return 0;
         }
         if (next == 1) {
-            return  element;
+            return element;
         }
 
         if (next == -1) {
@@ -176,5 +151,30 @@ public class FFT implements LinesConsumer {
         }
 
         return Integer.MAX_VALUE;
+    }
+
+    @Getter
+    @ToString
+    public static class IndexInfo {
+        private int index;
+        private int lcm;
+        private int factor;
+
+        private int remaining;
+
+        public static IndexInfo of(int initialLength, int index, int inputLength) {
+            IndexInfo indexInfo = new IndexInfo();
+            indexInfo.index = index;
+            if (4 * (index + 1) >= inputLength) {
+                indexInfo.lcm = inputLength;
+            } else {
+                indexInfo.lcm = ArithmeticUtils.lcm(initialLength, 4 * (index + 1));
+            }
+            indexInfo.factor = inputLength / indexInfo.lcm;
+            indexInfo.remaining = inputLength % indexInfo.lcm;
+
+            return indexInfo;
+        }
+
     }
 }

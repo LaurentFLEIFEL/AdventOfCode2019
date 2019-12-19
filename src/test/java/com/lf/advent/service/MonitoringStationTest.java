@@ -1,6 +1,6 @@
 package com.lf.advent.service;
 
-import com.lf.advent.service.MonitoringStation.Point;
+import com.lf.advent.util.Point;
 import org.assertj.core.api.Assertions;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;

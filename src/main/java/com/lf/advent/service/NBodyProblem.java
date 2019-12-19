@@ -92,18 +92,18 @@ public class NBodyProblem implements LinesConsumer {
 
     public static class Body {
         private String name;
-        private Coordinates pos;
+        private Point3D pos;
         @Setter
-        private Coordinates vel = Coordinates.ZERO.toBuilder().build();
+        private Point3D vel = Point3D.ZERO.toBuilder().build();
 
         public static Body of(String name, int x, int y, int z) {
             Body body = new Body();
-            body.pos = Coordinates.of(x, y, z);
+            body.pos = Point3D.of(x, y, z);
             body.name = name;
             return body;
         }
 
-        public static Body of(String name, Coordinates pos) {
+        public static Body of(String name, Point3D pos) {
             Body body = new Body();
             body.pos = pos.toBuilder().build();
             body.name = name;
@@ -127,7 +127,7 @@ public class NBodyProblem implements LinesConsumer {
                 if (body.equals(this)) {
                     continue;
                 }
-                Coordinates compare = this.pos.compare(body.pos);
+                Point3D compare = this.pos.compare(body.pos);
                 this.vel = this.vel.add(compare);
             }
         }
@@ -185,19 +185,19 @@ public class NBodyProblem implements LinesConsumer {
 
     @Builder(toBuilder = true)
     @EqualsAndHashCode
-    public static class Coordinates {
-        public static final Coordinates ZERO = Coordinates.of(0, 0, 0);
+    public static class Point3D {
+        public static final Point3D ZERO = Point3D.of(0, 0, 0);
 
         private int x;
         private int y;
         private int z;
 
-        public static Coordinates of(int x, int y, int z) {
-            return Coordinates.builder()
-                              .x(x)
-                              .y(y)
-                              .z(z)
-                              .build();
+        public static Point3D of(int x, int y, int z) {
+            return Point3D.builder()
+                          .x(x)
+                          .y(y)
+                          .z(z)
+                          .build();
         }
 
         public int energy() {
@@ -209,12 +209,12 @@ public class NBodyProblem implements LinesConsumer {
             return String.format("<x=%3d, y=%3d, z=%3d>", x, y, z);
         }
 
-        public Coordinates compare(Coordinates other) {
-            return Coordinates.of(Integer.signum(-this.x + other.x), Integer.signum(-this.y + other.y), Integer.signum(-this.z + other.z));
+        public Point3D compare(Point3D other) {
+            return Point3D.of(Integer.signum(-this.x + other.x), Integer.signum(-this.y + other.y), Integer.signum(-this.z + other.z));
         }
 
-        public Coordinates add(Coordinates other) {
-            return Coordinates.of(this.x + other.x, this.y + other.y, this.z + other.z);
+        public Point3D add(Point3D other) {
+            return Point3D.of(this.x + other.x, this.y + other.y, this.z + other.z);
         }
     }
 }

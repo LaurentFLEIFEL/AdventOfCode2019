@@ -105,8 +105,8 @@ public class FFTTest {
     @Test
     public void test_2_2() {
         //Given
-        int[] input = {0,2,9,3,5,1,0,9,6,9,9,9,4,0,8,0,7,4,0,7,5,8,5,4,4,7,0,3,4,3,2,3};
-        int[] expectedResult = {7,8,7,2,5,2,7,0};
+        int[] input = {0, 2, 9, 3, 5, 1, 0, 9, 6, 9, 9, 9, 4, 0, 8, 0, 7, 4, 0, 7, 5, 8, 5, 4, 4, 7, 0, 3, 4, 3, 2, 3};
+        int[] expectedResult = {7, 8, 7, 2, 5, 2, 7, 0};
         int nbrOfPhase = 100;
         int nbrOfRepeat = 10000;
         FFT service = new FFT();
@@ -125,8 +125,8 @@ public class FFTTest {
     @Test
     public void test_2_3() {
         //Given
-        int[] input = {0,3,0,8,1,7,7,0,8,8,4,9,2,1,9,5,9,7,3,1,1,6,5,4,4,6,8,5,0,5,1,7};
-        int[] expectedResult = {5,3,5,5,3,7,3,1};
+        int[] input = {0, 3, 0, 8, 1, 7, 7, 0, 8, 8, 4, 9, 2, 1, 9, 5, 9, 7, 3, 1, 1, 6, 5, 4, 4, 6, 8, 5, 0, 5, 1, 7};
+        int[] expectedResult = {5, 3, 5, 5, 3, 7, 3, 1};
         int nbrOfPhase = 100;
         int nbrOfRepeat = 10000;
         FFT service = new FFT();

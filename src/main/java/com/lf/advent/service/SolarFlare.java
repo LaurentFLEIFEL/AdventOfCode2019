@@ -1,9 +1,7 @@
 package com.lf.advent.service;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.lf.advent.util.Point;
 import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
@@ -198,25 +196,6 @@ public class SolarFlare implements LinesConsumer {
 
         public Point computeNextPoint(Point currentPosition) {
             return this.nextPointComputer.apply(currentPosition);
-        }
-    }
-
-    @Builder(toBuilder = true)
-    @ToString
-    @EqualsAndHashCode
-    public static class Point {
-        private int x;
-        private int y;
-
-        public static Point of(int x, int y) {
-            return Point.builder()
-                        .x(x)
-                        .y(y)
-                        .build();
-        }
-
-        public int alignment() {
-            return x * y;
         }
     }
 }

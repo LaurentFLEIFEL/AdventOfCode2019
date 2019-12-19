@@ -1,10 +1,8 @@
 package com.lf.advent.service;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import com.lf.advent.util.Point;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.eclipse.collections.api.factory.Lists;
@@ -92,9 +90,9 @@ public class OxygenRepairSystem implements LinesConsumer {
                         .filter(entry -> entry.getValue() != Tile.WALL)
                         .map(Map.Entry::getKey)
                         .filter(point -> !map.containsKey(Direction.EAST.computeNextPoint(point)) ||
-                                !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
-                                !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
-                                !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
+                                         !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
+                                         !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
+                                         !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
                         .count();
         return count == 0;
     }
@@ -105,9 +103,9 @@ public class OxygenRepairSystem implements LinesConsumer {
                   .filter(entry -> entry.getValue() != Tile.WALL)
                   .map(Map.Entry::getKey)
                   .filter(point -> !map.containsKey(Direction.EAST.computeNextPoint(point)) ||
-                          !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
-                          !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
-                          !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
+                                   !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
+                                   !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
+                                   !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
                   .collect(Collectors.toSet());
     }
 
@@ -119,9 +117,9 @@ public class OxygenRepairSystem implements LinesConsumer {
             previousSize = visited.size();
             Set<Point> adjacent = visited.stream()
                                          .map(point -> Sets.mutable.of(Direction.EAST.computeNextPoint(point),
-                                                 Direction.WEST.computeNextPoint(point),
-                                                 Direction.NORTH.computeNextPoint(point),
-                                                 Direction.SOUTH.computeNextPoint(point)))
+                                                                       Direction.WEST.computeNextPoint(point),
+                                                                       Direction.NORTH.computeNextPoint(point),
+                                                                       Direction.SOUTH.computeNextPoint(point)))
                                          .flatMap(Collection::stream)
                                          .filter(point -> !visited.contains(point))
                                          .filter(point -> map.containsKey(point))
@@ -147,9 +145,9 @@ public class OxygenRepairSystem implements LinesConsumer {
         while (!visited.contains(droid)) {
             Set<Point> adjacent = visited.stream()
                                          .map(point -> Sets.mutable.of(Direction.EAST.computeNextPoint(point),
-                                                 Direction.WEST.computeNextPoint(point),
-                                                 Direction.NORTH.computeNextPoint(point),
-                                                 Direction.SOUTH.computeNextPoint(point)))
+                                                                       Direction.WEST.computeNextPoint(point),
+                                                                       Direction.NORTH.computeNextPoint(point),
+                                                                       Direction.SOUTH.computeNextPoint(point)))
                                          .flatMap(Collection::stream)
                                          .filter(point -> !visited.contains(point))
                                          .filter(point -> map.containsKey(point))
@@ -163,7 +161,6 @@ public class OxygenRepairSystem implements LinesConsumer {
     }
 
     public void display() {
-
         IntSummaryStatistics xs = map.keySet()
                                      .stream()
                                      .mapToInt(point -> point.x)
@@ -174,8 +171,8 @@ public class OxygenRepairSystem implements LinesConsumer {
                                      .mapToInt(point -> point.y)
                                      .summaryStatistics();
 
-        for (int y = ys.getMax() ; y > ys.getMin() - 1 ; y--) {
-            for (int x = xs.getMin() ; x < xs.getMax() + 1 ; x++) {
+        for (int y = ys.getMax(); y > ys.getMin() - 1; y--) {
+            for (int x = xs.getMin(); x < xs.getMax() + 1; x++) {
                 Point point = Point.of(x, y);
                 Tile tile = map.getOrDefault(point, Tile.EMPTY);
                 if (x == 0 && y == 0 && tile.equals(Tile.VISITED)) {
@@ -190,37 +187,37 @@ public class OxygenRepairSystem implements LinesConsumer {
 
     public enum Output {
         HIT_WALL(0,
-                (input, map) -> {
-                    Point droid = retrieveDroid(map);
-                    map.put(input.computeNextPoint(droid), Tile.WALL);
-                },
-                (input, directions) -> {
+                 (input, map) -> {
+                     Point droid = retrieveDroid(map);
+                     map.put(input.computeNextPoint(droid), Tile.WALL);
+                 },
+                 (input, directions) -> {
 
-                }),
+                 }),
         HAS_MOVED(1, (input, map) -> {
             Point droid = retrieveDroid(map);
             map.put(droid, Tile.VISITED);
             map.put(input.computeNextPoint(droid), Tile.DROID);
         },
-                (input, directions) -> {
-                    if (Direction.values()[(input.ordinal() + 2) % 4] == directions.peekLast()) {
-                        directions.pollLast();
-                    } else {
-                        directions.add(input);
-                    }
-                }),
+                  (input, directions) -> {
+                      if (Direction.values()[(input.ordinal() + 2) % 4] == directions.peekLast()) {
+                          directions.pollLast();
+                      } else {
+                          directions.add(input);
+                      }
+                  }),
         IS_ON_TARGET(2, (input, map) -> {
             Point droid = retrieveDroid(map);
             map.put(droid, Tile.VISITED);
             map.put(input.computeNextPoint(droid), Tile.DROID);
         },
-                (input, directions) -> {
-                    if (Direction.values()[(input.ordinal() + 2 % 4)] == directions.peekLast()) {
-                        directions.pollLast();
-                    } else {
-                        directions.add(input);
-                    }
-                });
+                     (input, directions) -> {
+                         if (Direction.values()[(input.ordinal() + 2 % 4)] == directions.peekLast()) {
+                             directions.pollLast();
+                         } else {
+                             directions.add(input);
+                         }
+                     });
 
         private long code;
         private BiConsumer<Direction, Map<Point, Tile>> mapUpdator;
@@ -372,9 +369,9 @@ public class OxygenRepairSystem implements LinesConsumer {
                       .filter(entry -> entry.getValue() != Tile.WALL)
                       .map(Map.Entry::getKey)
                       .filter(point -> !map.containsKey(Direction.EAST.computeNextPoint(point)) ||
-                              !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
-                              !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
-                              !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
+                                       !map.containsKey(Direction.WEST.computeNextPoint(point)) ||
+                                       !map.containsKey(Direction.NORTH.computeNextPoint(point)) ||
+                                       !map.containsKey(Direction.SOUTH.computeNextPoint(point)))
                       .collect(Collectors.toSet());
         }
 
@@ -409,31 +406,6 @@ public class OxygenRepairSystem implements LinesConsumer {
                         .filter(path -> path.contains(target))
                         .min(Comparator.comparingInt(List::size))
                         .get();
-        }
-    }
-
-    @Builder(toBuilder = true)
-    @ToString
-    @EqualsAndHashCode
-    public static class Point {
-        public static final Point ZERO = Point.of(0, 0);
-
-        private int x;
-        private int y;
-
-        public static Point of(int x, int y) {
-            return Point.builder()
-                        .x(x)
-                        .y(y)
-                        .build();
-        }
-
-        public int distance(Point other) {
-            return Math.abs(x - other.x) + Math.abs(y - other.y);
-        }
-
-        public int module() {
-            return distance(ZERO);
         }
     }
 }
