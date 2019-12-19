@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toCollection;
+import static org.eclipse.collections.impl.collector.Collectors2.toImmutableSet;
 import static org.eclipse.collections.impl.tuple.Tuples.pair;
 
 @Service
@@ -33,13 +33,12 @@ import static org.eclipse.collections.impl.tuple.Tuples.pair;
 public class Vault2 implements LinesConsumer {
 
     private Map<Point, Tile> map = Maps.mutable.empty();
-    private MutableSet<Tile> allKeys = Sets.mutable.empty();
+    private ImmutableSet<Tile> allKeys = Sets.immutable.empty();
 
     private Map<Pair<Tile, Tile>, PathInfo> distances = Maps.mutable.withInitialCapacity(30 * 30);
 
-    @Getter
-    private MutableSet<Tile> starts = Sets.mutable.withInitialCapacity(4);
-    private MutableSet<Tile> nodes;
+    private ImmutableSet<Tile> starts = Sets.immutable.empty();
+    private ImmutableSet<Tile> nodes;
     private Result bestDistance;
     private Map<PathToKeysKeyMap, Result> memoizedValues = Maps.mutable.withInitialCapacity(10_000);
 
@@ -49,19 +48,19 @@ public class Vault2 implements LinesConsumer {
 
         computeDistances();
 
-        bestDistance = findBestDistance2(starts, Sets.mutable.empty());
+        bestDistance = findBestDistance2(starts, Sets.immutable.empty());
         addMissingNode();
         log.info("Best distance = {}", bestDistance);
     }
 
     private void addMissingNode() {
         nodes.difference(bestDistance.getPath().toSet())
-             .forEach(tile -> bestDistance.getPath().add(tile));//only the last one is missing
+             .forEach(tile -> bestDistance.getPath().newWith(tile));//only the last one is missing
     }
 
-    private Result findBestDistance2(MutableSet<Tile> currents, MutableSet<Tile> availableKeys) {
-        if (availableKeys.containsAll(allKeys)) {
-            return Result.builder().length(0).path(Lists.mutable.of()).build();
+    private Result findBestDistance2(ImmutableSet<Tile> currents, ImmutableSet<Tile> availableKeys) {
+        if (availableKeys.containsAllIterable(allKeys)) {
+            return Result.of(Lists.immutable.empty(), 0);
         }
 
         PathToKeysKeyMap key = PathToKeysKeyMap.builder()
@@ -76,34 +75,33 @@ public class Vault2 implements LinesConsumer {
         Result result = reachableKeys2(currents, availableKeys).stream()
                                                                .map(pair -> evaluateDistance(currents, availableKeys, pair))
                                                                .min(comparingInt(Result::getLength))
-                                                               .orElse(Result.builder().length(Integer.MAX_VALUE).path(Lists.mutable.empty()).build());
+                                                               .orElse(Result.of(Lists.immutable.empty(), Integer.MAX_VALUE));
 
         memoizedValues.put(key, result);
         return result;
     }
 
-    private Result evaluateDistance(MutableSet<Tile> currents, MutableSet<Tile> availableKeys, Pair<Tile, Tile> pair) {
-        MutableSet<Tile> newAvailableKeys = availableKeys.toImmutable()
-                                                         .newWith(pair.getTwo())
-                                                         .toSet();
-        MutableSet<Tile> newCurrents = currents.toImmutable()
-                                               .reject(tile -> tile.equals(pair.getOne()))
-                                               .newWith(pair.getTwo())
-                                               .toSet();
+    private Result evaluateDistance(ImmutableSet<Tile> currents, ImmutableSet<Tile> availableKeys, Pair<Tile, Tile> pair) {
+        ImmutableSet<Tile> newAvailableKeys = availableKeys.toImmutable()
+                                                           .newWith(pair.getTwo());
+        ImmutableSet<Tile> newCurrents = currents.toImmutable()
+                                                 .reject(tile -> tile.equals(pair.getOne()))
+                                                 .newWith(pair.getTwo());
         Result partialResult = findBestDistance2(newCurrents, newAvailableKeys);
-        int length = distances.get(pair(pair.getTwo(), pair.getOne())).getLength() + partialResult.getLength();
-        return Result.builder().path(Lists.mutable.of(pair.getOne()).withAll(partialResult.getPath())).length(length).build();
+        int length = distances.get(pair).getLength() + partialResult.getLength();
+        ImmutableList<Tile> path = Lists.immutable.of(pair.getOne()).newWithAll(partialResult.getPath());
+        return Result.of(path, length);
     }
 
-    private Set<Pair<Tile, Tile>> reachableKeys2(Set<Tile> currents, MutableSet<Tile> availableKeys) {
+    private ImmutableSet<Pair<Tile, Tile>> reachableKeys2(ImmutableSet<Tile> currents, ImmutableSet<Tile> availableKeys) {
         return currents.stream()
                        .map(current -> reachableKeys(current, availableKeys))
-                       .flatMap(Set::stream)
-                       .collect(toCollection(Sets.mutable::empty));
+                       .flatMap(ImmutableSet::stream)
+                       .collect(toImmutableSet());
     }
 
-    private Set<Pair<Tile, Tile>> reachableKeys(Tile current, MutableSet<Tile> availableKeys) {
-        MutableSet<Tile> difference = allKeys.difference(availableKeys);
+    private ImmutableSet<Pair<Tile, Tile>> reachableKeys(Tile current, ImmutableSet<Tile> availableKeys) {
+        ImmutableSet<Tile> difference = allKeys.difference(availableKeys);
         return difference.stream()
                          .map(node -> pair(current, node))
                          .map(pair -> distances.get(pair))
@@ -111,7 +109,7 @@ public class Vault2 implements LinesConsumer {
                          .filter(pathInfo -> pathInfo.canUnlock(availableKeys.collect(Tile::getCode)))
                          .map(pathInfo -> map.get(pathInfo.getLast()))
                          .map(reachableKey -> pair(current, reachableKey))
-                         .collect(toCollection(Sets.mutable::empty));
+                         .collect(toImmutableSet());
     }
 
     private void computeDistances() {
@@ -142,15 +140,26 @@ public class Vault2 implements LinesConsumer {
         distances.put(pair.swap(), copy);
     }
 
-    @Builder
-    @Getter
-    public static class Result {
-        private MutableList<Tile> path;
-        private int length;
+    private void initializeMap(List<String> lines) {
+        int xMax = lines.get(0).length();
+        int yMax = lines.size();
+        for (int y = 0; y < yMax; y++) {
+            String[] line = lines.get(y).split("");
+            for (int x = 0; x < xMax; x++) {
+                if (" ".equals(line[x])) {
+                    continue;
+                }
+                Point position = Point.of(x, y);
+                Tile tile = Tile.of(position, line[x]);
+                if (tile.getType() == TileType.START) {
+                    starts = starts.newWith(tile);
+                }
 
-        @Override
-        public String toString() {
-            return "Result{" + length + path + '}';
+                if (tile.isKey()) {
+                    allKeys = allKeys.newWith(tile);
+                }
+                map.put(position, tile);
+            }
         }
     }
 
@@ -192,26 +201,22 @@ public class Vault2 implements LinesConsumer {
                     .orElseThrow(() -> new IllegalStateException("Not possible."));
     }
 
-    private void initializeMap(List<String> lines) {
-        int xMax = lines.get(0).length();
-        int yMax = lines.size();
-        for (int y = 0; y < yMax; y++) {
-            String[] line = lines.get(y).split("");
-            for (int x = 0; x < xMax; x++) {
-                if (" ".equals(line[x])) {
-                    continue;
-                }
-                Point position = Point.of(x, y);
-                Tile tile = Tile.of(position, line[x]);
-                if (tile.getType() == TileType.START) {
-                    starts.add(tile);
-                }
+    @Builder
+    @Getter
+    public static class Result {
+        private ImmutableList<Tile> path;
+        private int length;
 
-                if (tile.isKey()) {
-                    allKeys.add(tile);
-                }
-                map.put(position, tile);
-            }
+        public static Result of(ImmutableList<Tile> path, int length) {
+            return Result.builder()
+                         .path(path)
+                         .length(length)
+                         .build();
+        }
+
+        @Override
+        public String toString() {
+            return "Result{" + length + path + '}';
         }
     }
 
@@ -266,8 +271,8 @@ public class Vault2 implements LinesConsumer {
     @Builder
     @EqualsAndHashCode
     public static class PathToKeysKeyMap {
-        private MutableSet<Tile> start;
-        private MutableSet<Tile> availableKeys;
+        private ImmutableSet<Tile> start;
+        private ImmutableSet<Tile> availableKeys;
     }
 
     @Getter
@@ -335,7 +340,7 @@ public class Vault2 implements LinesConsumer {
             length++;
         }
 
-        public boolean canUnlock(Set<String> availableKeys) {
+        public boolean canUnlock(ImmutableSet<String> availableKeys) {
             return availableKeys.containsAll(doors);
         }
     }
