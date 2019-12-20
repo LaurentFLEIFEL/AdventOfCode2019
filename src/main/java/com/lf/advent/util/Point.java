@@ -2,6 +2,7 @@ package com.lf.advent.util;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.commons.math3.complex.Complex;
 
@@ -10,6 +11,7 @@ import java.util.Set;
 @Builder(toBuilder = true)
 @ToString
 @EqualsAndHashCode
+@Getter
 public class Point {
     public static final Point ZERO = Point.of(0, 0);
 
@@ -79,4 +81,5 @@ public class Point {
     public int alignment() {
         return x * y;
     }
+
 }

@@ -44,6 +44,7 @@ public class TractorBeam implements LinesConsumer {
                 }
             }
         }
+
     }
 
     private boolean isSantaShipFit(Point of) {

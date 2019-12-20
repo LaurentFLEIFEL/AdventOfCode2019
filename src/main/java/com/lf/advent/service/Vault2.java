@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.Comparator.comparingInt;
 import static org.eclipse.collections.impl.collector.Collectors2.toImmutableSet;
@@ -171,20 +172,19 @@ public class Vault2 implements LinesConsumer {
             Set<PathInfo> aux = Sets.mutable.empty();
             for (PathInfo path : paths) {
                 Point lastVisited = path.getLast();
-                Sets.mutable.of(Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH)
-                            .stream()
-                            .map(direction -> direction.computeNextPoint(lastVisited))
-                            .filter(point -> !visited.contains(point))
-                            .filter(point -> map.containsKey(point))
-                            .map(point -> map.get(point))
-                            .filter(tile -> !tile.isWall())
-                            .peek(tile -> visited.add(tile.getPosition()))
-                            .map(tile -> {
-                                PathInfo pathInfo = path.copy();
-                                pathInfo.addTile(tile);
-                                return pathInfo;
-                            })
-                            .forEach(aux::add);
+                Stream.of(Direction.EAST, Direction.WEST, Direction.NORTH, Direction.SOUTH)
+                      .map(direction -> direction.computeNextPoint(lastVisited))
+                      .filter(point -> !visited.contains(point))
+                      .filter(point -> map.containsKey(point))
+                      .map(point -> map.get(point))
+                      .filter(tile -> !tile.isWall())
+                      .peek(tile -> visited.add(tile.getPosition()))
+                      .map(tile -> {
+                          PathInfo pathInfo = path.copy();
+                          pathInfo.addTile(tile);
+                          return pathInfo;
+                      })
+                      .forEach(aux::add);
             }
 
             if (aux.isEmpty()) {
