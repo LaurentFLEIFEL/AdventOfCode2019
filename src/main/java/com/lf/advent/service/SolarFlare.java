@@ -50,7 +50,7 @@ public class SolarFlare implements LinesConsumer {
         IntCode.Instruction signal = null;
         List<Long> output = service.getIo().output;
         Deque<Long> input = service.getIo().input;
-        initializiInput(input);
+        initializeInput(input);
 
         while (signal != IntCode.Instruction.FINISH) {
             signal = service.execute();
@@ -61,7 +61,7 @@ public class SolarFlare implements LinesConsumer {
         log.info("Final output = {}", output.get(output.size() - 1));
     }
 
-    private void initializiInput(Deque<Long> input) {
+    private void initializeInput(Deque<Long> input) {
         input.addAll(MAIN_ROUTINE.chars()
                                  .mapToLong(i -> (long) i)
                                  .boxed()
